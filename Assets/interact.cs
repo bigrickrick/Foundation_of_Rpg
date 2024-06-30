@@ -14,6 +14,7 @@ public class interact : MonoBehaviour
     private LineRenderer Path;
     private NavMeshTriangulation Triangulation;
     private Vector3 targetPosition; // Class-level variable to store the target position
+    
 
     private void Start()
     {
@@ -82,7 +83,7 @@ public class interact : MonoBehaviour
             // Check if the click is over a UI element
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                return; // Do nothing if the click is over a UI element
+                return;
             }
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -98,14 +99,23 @@ public class interact : MonoBehaviour
 
     private void Interact(GameObject hit, RaycastHit location)
     {
-        if (Whatisit(hit) != null)
+        var whatIsIt = Whatisit(hit);
+        if (whatIsIt != null)
         {
-            Modifiers.Type type = Whatisit(hit).currentType;
-            Debug.Log("Is something that can be interacted/Entity: " + Whatisit(hit).currentType);
+            Modifiers.Type type = whatIsIt.currentType;
+            Debug.Log("Is something that can be interacted/Entity: " + type);
+
             if (type == Modifiers.Type.Interactiveterrain)
             {
-                party.CurrentEntity.Move(location);
-                // start the interaction
+                var interactiveTerrain = hit.GetComponent<InteractiveTerrain>();
+                if (!interactiveTerrain.IsEntityCloseEnough(party.CurrentEntity.transform.position))
+                {
+                    party.CurrentEntity.Move(location, hit);
+                }
+                else
+                {
+                    interactiveTerrain.interact();
+                }
             }
             else if (type == Modifiers.Type.IsAEntity)
             {
@@ -127,10 +137,11 @@ public class interact : MonoBehaviour
             ClickMarker.SetActive(true);
             ClickMarker.transform.position = location.point;
             party.CurrentEntity.Move(location);
-            targetPosition = location.point; // Store the target position
-            DrawPath(); // Call DrawPath without parameters
+            targetPosition = location.point; 
+            DrawPath(); 
         }
     }
+
 
     private Modifiers Whatisit(GameObject hitObject)
     {

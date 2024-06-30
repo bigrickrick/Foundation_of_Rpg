@@ -8,7 +8,7 @@ public class Party : MonoBehaviour
     public List<Entity> PartyMembers;
     public Entity CurrentEntity;
     [SerializeField] private List<Node> NodeList;
-    public Button partyButtonPrefab;
+
     
     private float nodeSpacing = 4f;
     
@@ -16,15 +16,11 @@ public class Party : MonoBehaviour
     private void Start()
     {
         CreatePartyNodes();
-        Create_Button_Foreach_Member();
+        
         
     }
 
-    private void Create_Button_Foreach_Member()
-    {
-        
-       
-    }
+    
 
 
     private void CreatePartyNodes()
