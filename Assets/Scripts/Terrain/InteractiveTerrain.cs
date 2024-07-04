@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class InteractiveTerrain : Modifiers
+public abstract class InteractiveTerrain : Modifiers, Interactable
 {
     
     public float interactionDistance; 
@@ -12,8 +12,8 @@ public abstract class InteractiveTerrain : Modifiers
     {
         currentType = Modifiers.Type.Interactiveterrain;
     }
-    public abstract void interact();
-    public bool IsEntityCloseEnough(Vector3 entityPosition)
+    public abstract void interact(Entity entity);
+    public virtual bool IsEntityCloseEnough(Vector3 entityPosition)
     {
         float distance = Vector3.Distance(transform.position, entityPosition);
         return distance <= interactionDistance;

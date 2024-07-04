@@ -13,7 +13,7 @@ public class interact : MonoBehaviour
     [SerializeField] private float PathHeighOffset;
     private LineRenderer Path;
     private NavMeshTriangulation Triangulation;
-    private Vector3 targetPosition; // Class-level variable to store the target position
+    private Vector3 targetPosition; 
     
 
     private void Start()
@@ -103,18 +103,20 @@ public class interact : MonoBehaviour
         if (whatIsIt != null)
         {
             Modifiers.Type type = whatIsIt.currentType;
-            Debug.Log("Is something that can be interacted/Entity: " + type);
-
+           
+            
             if (type == Modifiers.Type.Interactiveterrain)
             {
-                var interactiveTerrain = hit.GetComponent<InteractiveTerrain>();
-                if (!interactiveTerrain.IsEntityCloseEnough(party.CurrentEntity.transform.position))
+                var interactable = hit.GetComponent<Interactable>();
+                
+                if (!interactable.IsEntityCloseEnough(party.CurrentEntity.transform.position))
                 {
                     party.CurrentEntity.Move(location, hit);
+                    
                 }
                 else
                 {
-                    interactiveTerrain.interact();
+                    interactable.interact(party.CurrentEntity);
                 }
             }
             else if (type == Modifiers.Type.IsAEntity)
@@ -130,6 +132,7 @@ public class interact : MonoBehaviour
             {
                 // pickup object and add it to inventory
             }
+            targetPosition = location.point;
         }
         else
         {
@@ -137,8 +140,10 @@ public class interact : MonoBehaviour
             ClickMarker.SetActive(true);
             ClickMarker.transform.position = location.point;
             party.CurrentEntity.Move(location);
-            targetPosition = location.point; 
-            DrawPath(); 
+            Debug.Log("Click location: " + location.point);
+            
+            targetPosition = location.point;
+
         }
     }
 

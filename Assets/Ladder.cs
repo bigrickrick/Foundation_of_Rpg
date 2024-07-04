@@ -5,9 +5,9 @@ using UnityEngine;
 public class Ladder : InteractiveTerrain
 {
     public Node ladder_end_point;
-    public override void interact()
+    public override void interact(Entity entity)
     {
-        Debug.Log(" Has reach ladder");
+        Debug.Log(entity+" Has reach ladder");
 
     }
 }

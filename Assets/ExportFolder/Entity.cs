@@ -23,7 +23,7 @@ public abstract class Entity : Modifiers
     public Node node;
     public string Entity_Name;
     private Modifiers WhereIsGoing;
-    private bool hasReachedDestination = false; // Add this flag
+    private bool hasReachedDestination = false; 
 
     public void SetUpNode(Node newnode) // should only be use when become a party member of the player
     {
@@ -51,16 +51,16 @@ public abstract class Entity : Modifiers
             {
                 if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
                 {
-                    if (!hasReachedDestination) // Check the flag
+                    if (!hasReachedDestination)
                     {
                         OnEntityReachedDestination?.Invoke(this, EventArgs.Empty);
-                        hasReachedDestination = true; // Set the flag
+                        hasReachedDestination = true; 
                     }
                     return true;
                 }
             }
         }
-        hasReachedDestination = false; // Reset the flag if not at destination
+        hasReachedDestination = false; 
         return false;
     }
 
@@ -112,7 +112,7 @@ public abstract class Entity : Modifiers
             var interactiveTerrain = targetInteractiveObject.GetComponent<InteractiveTerrain>();
             if (interactiveTerrain != null)
             {
-                interactiveTerrain.interact();
+                interactiveTerrain.interact(this);
             }
             targetInteractiveObject = null; // Reset the target
         }
@@ -134,8 +134,8 @@ public abstract class Entity : Modifiers
         agent.acceleration = 99;
 
         agent.SetDestination(hit.point);
-        hasReachedDestination = false; // Reset the flag when moving to a new destination
-        targetInteractiveObject = target; // Set the new target interactive object
+        hasReachedDestination = false; 
+        targetInteractiveObject = target; 
     }
     public float runThresholdDistance = 10f;
 
