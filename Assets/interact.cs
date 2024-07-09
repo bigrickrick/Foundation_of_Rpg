@@ -50,17 +50,32 @@ public class interact : MonoBehaviour
     {
         Vector3 mousePos = Input.mousePosition;
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
-        RaycastHit hit;
+        RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~LayerMask.GetMask("SeeThroughTerrain"))) 
+        foreach (RaycastHit hit in hits)
         {
-            NavMeshHit navHit;
-            if (NavMesh.SamplePosition(hit.point, out navHit, 1.0f, NavMesh.AllAreas))
+            if (hit.collider != null)
             {
-                MouseLocation.transform.position = navHit.position + Vector3.up * PathHeighOffset;
+                NavMeshHit navHit;
+                SeeThroughTerrain seeThroughComponent = hit.collider.GetComponent<SeeThroughTerrain>();
+
+                // Check if the hit object has a SeeThroughTerrain component and if it is see-through
+                if (seeThroughComponent != null && seeThroughComponent.IsSeeThrough())
+                {
+                    // If see-through, continue to the next hit
+                    continue;
+                }
+
+                // If not see-through or doesn't have SeeThroughTerrain component, proceed to set MouseLocation
+                if (NavMesh.SamplePosition(hit.point, out navHit, 1.0f, NavMesh.AllAreas))
+                {
+                    MouseLocation.transform.position = navHit.position + Vector3.up * PathHeighOffset;
+                    return; // Exit the method after setting the MouseLocation
+                }
             }
         }
     }
+
 
 
 
@@ -92,16 +107,29 @@ public class interact : MonoBehaviour
             }
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitInfo;
+            RaycastHit[] hits = Physics.RaycastAll(ray);
 
-            if (Physics.Raycast(ray, out hitInfo))
+            foreach (RaycastHit hit in hits)
             {
-                GameObject hitObject = hitInfo.collider.gameObject;
-                Interact(hitObject, hitInfo);
+                if (hit.collider != null)
+                {
+                    GameObject hitObject = hit.collider.gameObject;
+                    SeeThroughTerrain seeThroughComponent = hitObject.GetComponent<SeeThroughTerrain>();
+
+                    // Check if the hit object has a SeeThroughTerrain component and if it is see-through
+                    if (seeThroughComponent != null && seeThroughComponent.IsSeeThrough())
+                    {
+                        // If see-through, continue to the next hit
+                        continue;
+                    }
+
+                    // If not see-through or doesn't have SeeThroughTerrain component, interact with the object
+                    Interact(hitObject, hit);
+                    return; // Exit the method after interacting with the first valid object
+                }
             }
         }
     }
-
     private void Interact(GameObject hit, RaycastHit location)
     {
         var whatIsIt = Whatisit(hit);

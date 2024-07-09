@@ -101,8 +101,6 @@ public class CameraMovement : MonoBehaviour
     private void ViewObstructed()
     {
         
-
-        
         Vector3 rayOrigin = party.CurrentEntity.transform.position + Vector3.up * 0.1f;
         Ray ray = new Ray(rayOrigin, Vector3.up);
         RaycastHit hit;
@@ -146,16 +144,13 @@ public class CameraMovement : MonoBehaviour
             currentSeeThroughObjects.Remove(obj);
         }
 
-        if (!seeThroughDetected)
-        {
-            
-            Debug.Log("No SeeThroughLayer detected.");
-        }
+        
+
+
     }
 
     private bool IsRayHittingObject(Ray ray, SeeThroughTerrain obj)
     {
-        
         RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, SeeThroughLayer);
         foreach (RaycastHit hit in hits)
         {
