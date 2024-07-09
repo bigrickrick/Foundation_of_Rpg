@@ -24,6 +24,8 @@ public class interact : MonoBehaviour
         Path.startWidth = 0.15f;
         Path.endWidth = 0.15f;
         ClickMarker.SetActive(false);
+
+
     }
 
     private void Update()
@@ -49,7 +51,8 @@ public class interact : MonoBehaviour
         Vector3 mousePos = Input.mousePosition;
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, NavMesh.AllAreas))
+
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, ~LayerMask.GetMask("SeeThroughTerrain"))) 
         {
             NavMeshHit navHit;
             if (NavMesh.SamplePosition(hit.point, out navHit, 1.0f, NavMesh.AllAreas))
@@ -58,6 +61,8 @@ public class interact : MonoBehaviour
             }
         }
     }
+
+
 
     // Draw Movement path
     private void DrawPath()
@@ -136,6 +141,7 @@ public class interact : MonoBehaviour
         }
         else
         {
+            
             Debug.Log("It is ground/place where you can move");
             ClickMarker.SetActive(true);
             ClickMarker.transform.position = location.point;

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    public Camera Playercamera;
     public float CameraSpeed;
     public float scrollspeed;
     public float rotationSpeed;
@@ -13,6 +12,9 @@ public class CameraMovement : MonoBehaviour
     private Transform rotationPoint;
     public bool Rotate;
     public bool RotateAlternate;
+    public Party party;
+    public LayerMask SeeThroughLayer;
+    private List<SeeThroughTerrain> currentSeeThroughObjects = new List<SeeThroughTerrain>();
 
     private void Start()
     {
@@ -23,8 +25,8 @@ public class CameraMovement : MonoBehaviour
         gameInput.OnRotateCamerastopedAlternate += GameInput_OnRotateCamerastopedAlternate;
 
         movementTransform = new GameObject("MovementTransform").transform;
-        movementTransform.SetParent(transform); 
-        movementTransform.localPosition = Vector3.zero; 
+        movementTransform.SetParent(transform);
+        movementTransform.localPosition = Vector3.zero;
         rotationPoint = transform;
     }
 
@@ -51,6 +53,7 @@ public class CameraMovement : MonoBehaviour
             RotateCamera(-1);
         }
 
+        ViewObstructed();
     }
 
     private void GameInput_OnRotateCamerastoped(object sender, System.EventArgs e)
@@ -90,12 +93,83 @@ public class CameraMovement : MonoBehaviour
     {
         float scrollAmount = GetScrollAmount();
         Vector3 newPosition = transform.position + Vector3.up * scrollAmount * scrollspeed * CameraSpeed * Time.deltaTime;
+
         newPosition.y = Mathf.Clamp(newPosition.y, 5f, 30f);
         transform.position = newPosition;
     }
 
+    private void ViewObstructed()
+    {
+        
+
+        
+        Vector3 rayOrigin = party.CurrentEntity.transform.position + Vector3.up * 0.1f;
+        Ray ray = new Ray(rayOrigin, Vector3.up);
+        RaycastHit hit;
+
+        
+        Debug.DrawLine(ray.origin, ray.origin + ray.direction * 100f, Color.red);
+
+        bool seeThroughDetected = false;
+
+        
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, SeeThroughLayer))
+        {
+            SeeThroughTerrain seeThroughTerrain = hit.collider.GetComponent<SeeThroughTerrain>();
+            if (seeThroughTerrain != null)
+            {
+                
+                if (!currentSeeThroughObjects.Contains(seeThroughTerrain))
+                {
+                    // Toggle its visibility
+                    seeThroughTerrain.ToggleSeeThrough();
+                    currentSeeThroughObjects.Add(seeThroughTerrain);
+                }
+                seeThroughDetected = true;
+            }
+        }
+
+        
+        List<SeeThroughTerrain> objectsToRevert = new List<SeeThroughTerrain>();
+        foreach (SeeThroughTerrain obj in currentSeeThroughObjects)
+        {
+            if (!IsRayHittingObject(ray, obj))
+            {
+                obj.ToggleSeeThrough();
+                objectsToRevert.Add(obj);
+            }
+        }
+
+        
+        foreach (SeeThroughTerrain obj in objectsToRevert)
+        {
+            currentSeeThroughObjects.Remove(obj);
+        }
+
+        if (!seeThroughDetected)
+        {
+            
+            Debug.Log("No SeeThroughLayer detected.");
+        }
+    }
+
+    private bool IsRayHittingObject(Ray ray, SeeThroughTerrain obj)
+    {
+        
+        RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity, SeeThroughLayer);
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.collider.GetComponent<SeeThroughTerrain>() == obj)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void OnDestroy()
     {
+        
         if (movementTransform != null)
         {
             Destroy(movementTransform.gameObject);
