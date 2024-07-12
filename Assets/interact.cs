@@ -50,31 +50,42 @@ public class interact : MonoBehaviour
     {
         Vector3 mousePos = Input.mousePosition;
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
+
+        
+        Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
+
         RaycastHit[] hits = Physics.RaycastAll(ray, Mathf.Infinity);
 
-        foreach (RaycastHit hit in hits)
+        
+        List<RaycastHit> sortedHits = new List<RaycastHit>(hits);
+
+        
+        sortedHits.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in sortedHits)
         {
             if (hit.collider != null)
             {
-                NavMeshHit navHit;
                 SeeThroughTerrain seeThroughComponent = hit.collider.GetComponent<SeeThroughTerrain>();
 
-                // Check if the hit object has a SeeThroughTerrain component and if it is see-through
                 if (seeThroughComponent != null && seeThroughComponent.IsSeeThrough())
                 {
                     // If see-through, continue to the next hit
                     continue;
                 }
 
-                // If not see-through or doesn't have SeeThroughTerrain component, proceed to set MouseLocation
+                NavMeshHit navHit;
                 if (NavMesh.SamplePosition(hit.point, out navHit, 1.0f, NavMesh.AllAreas))
                 {
                     MouseLocation.transform.position = navHit.position + Vector3.up * PathHeighOffset;
-                    return; // Exit the method after setting the MouseLocation
+                    return;
                 }
             }
         }
     }
+
+
+
 
 
 
@@ -87,20 +98,35 @@ public class interact : MonoBehaviour
 
         if (agent.CalculatePath(targetPosition, path))
         {
-            Path.positionCount = path.corners.Length;
-
+            
+            List<Vector3> sampledPath = new List<Vector3>();
             for (int i = 0; i < path.corners.Length; i++)
             {
-                Path.SetPosition(i, path.corners[i]);
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(path.corners[i], out hit, 1.0f, NavMesh.AllAreas))
+                {
+                    sampledPath.Add(hit.position + Vector3.up * PathHeighOffset);
+                }
+                else
+                {
+                    sampledPath.Add(path.corners[i]); 
+                }
+            }
+
+            Path.positionCount = sampledPath.Count;
+            for (int i = 0; i < sampledPath.Count; i++)
+            {
+                Path.SetPosition(i, sampledPath[i]);
             }
         }
     }
+
 
     private void GameInput_OnShoot(object sender, System.EventArgs e)
     {
         if (Input.GetMouseButtonDown(0))
         {
-            // Check if the click is over a UI element
+           
             if (EventSystem.current.IsPointerOverGameObject())
             {
                 return;
@@ -116,16 +142,16 @@ public class interact : MonoBehaviour
                     GameObject hitObject = hit.collider.gameObject;
                     SeeThroughTerrain seeThroughComponent = hitObject.GetComponent<SeeThroughTerrain>();
 
-                    // Check if the hit object has a SeeThroughTerrain component and if it is see-through
+                   
                     if (seeThroughComponent != null && seeThroughComponent.IsSeeThrough())
                     {
                         // If see-through, continue to the next hit
                         continue;
                     }
 
-                    // If not see-through or doesn't have SeeThroughTerrain component, interact with the object
+                    
                     Interact(hitObject, hit);
-                    return; // Exit the method after interacting with the first valid object
+                    return; 
                 }
             }
         }
@@ -172,7 +198,8 @@ public class interact : MonoBehaviour
             
             Debug.Log("It is ground/place where you can move");
             ClickMarker.SetActive(true);
-            ClickMarker.transform.position = location.point;
+            ClickMarker.transform.position = MouseLocation.transform.position;
+            location.point = MouseLocation.transform.position;
             party.CurrentEntity.Move(location);
             Debug.Log("Click location: " + location.point);
             

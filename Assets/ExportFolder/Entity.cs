@@ -137,6 +137,14 @@ public abstract class Entity : Modifiers
         hasReachedDestination = false; 
         targetInteractiveObject = target; 
     }
+    
+    public void InstantMove(Vector3 position)
+    {
+        agent.enabled = false;
+        transform.position = position;
+        agent.enabled = true;
+    }
+
     public float runThresholdDistance = 10f;
 
     private void OnDrawGizmosSelected()

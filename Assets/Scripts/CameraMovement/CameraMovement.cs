@@ -108,7 +108,7 @@ public class CameraMovement : MonoBehaviour
         
         Debug.DrawLine(ray.origin, ray.origin + ray.direction * 100f, Color.red);
 
-        bool seeThroughDetected = false;
+        
 
         
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, SeeThroughLayer))
@@ -123,7 +123,7 @@ public class CameraMovement : MonoBehaviour
                     seeThroughTerrain.ToggleSeeThrough();
                     currentSeeThroughObjects.Add(seeThroughTerrain);
                 }
-                seeThroughDetected = true;
+                
             }
         }
 
