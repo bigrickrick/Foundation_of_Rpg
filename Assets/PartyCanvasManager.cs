@@ -31,8 +31,11 @@ public class PartyCanvasManager : MonoBehaviour
            
             Button newButton = Instantiate(buttonPrefab, canvas.transform);
 
-           
-            //newButton.GetComponentInChildren<Text>().text = member.Entity_Name;
+
+            if (member.EntityPortrait != null)
+            {
+                newButton.image.sprite = member.EntityPortrait;
+            }
 
             
             newButton.onClick.AddListener(() => party.SwitchLeader(member));

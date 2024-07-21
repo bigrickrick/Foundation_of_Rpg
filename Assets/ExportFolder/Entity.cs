@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public abstract class Entity : Modifiers
 {
@@ -11,7 +12,7 @@ public abstract class Entity : Modifiers
     public GameObject entity;
     public delegate void OnEntityDeath();
     public event OnEntityDeath onEntityDeath;
-
+    public Sprite EntityPortrait;
     public event EventHandler OnEntityReachedDestination;
 
     private GameObject targetInteractiveObject;

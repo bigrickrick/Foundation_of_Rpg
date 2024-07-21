@@ -170,6 +170,7 @@ public class interact : MonoBehaviour
                 
                 if (!interactable.IsEntityCloseEnough(party.CurrentEntity.transform.position))
                 {
+                    location.point = interactable.InteractablePoint(party.CurrentEntity);
                     party.CurrentEntity.Move(location, hit);
                     
                 }

@@ -4,15 +4,16 @@ using UnityEngine;
 
 public abstract class InteractiveTerrain : Modifiers, Interactable
 {
-    
-    public float interactionDistance; 
+    public float interactionDistance;
+    public List<Node> interactablepoints;
 
-   
     void Start()
     {
         currentType = Modifiers.Type.Interactiveterrain;
     }
+
     public abstract void interact(Entity entity);
+
     public virtual bool IsEntityCloseEnough(Vector3 entityPosition)
     {
         float distance = Vector3.Distance(transform.position, entityPosition);
@@ -21,7 +22,26 @@ public abstract class InteractiveTerrain : Modifiers, Interactable
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow; 
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, interactionDistance);
+    }
+
+    public virtual Vector3 InteractablePoint(Entity entity)
+    {
+        
+        Vector3 closestPoint = interactablepoints[0].transform.position;
+        float minDistance = Vector3.Distance(entity.transform.position, closestPoint);
+
+        foreach (Node point in interactablepoints)
+        {
+            float distance = Vector3.Distance(entity.transform.position, point.transform.position);
+            if (distance < minDistance)
+            {
+                closestPoint = point.transform.position;
+                minDistance = distance;
+            }
+        }
+
+        return closestPoint;
     }
 }
