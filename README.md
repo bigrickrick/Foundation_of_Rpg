@@ -1,7 +1,7 @@
 Project goal:
 
-Foundation of rpg is a project with the goal of replicating the basic systems of the rpg divinity original sin 2 and other games by larian studio
-Exemples of systems: 
+Foundation of Rpg is a project with the goal of replicating the basic systems of the 'Rpg Divinity Original Sin 2' and other games by Larian Studio
+Exemples of systems that i replicated: 
 - The character controls
 - Characters portrait
 - Point and click movement
