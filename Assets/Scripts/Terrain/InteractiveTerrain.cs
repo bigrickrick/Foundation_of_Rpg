@@ -12,7 +12,7 @@ public abstract class InteractiveTerrain : Modifiers, Interactable
         currentType = Modifiers.Type.Interactiveterrain;
     }
 
-    public abstract void interact(Entity entity);
+    public abstract void interact(EntityLegacy entity);
 
     public virtual bool IsEntityCloseEnough(Vector3 entityPosition)
     {
@@ -26,7 +26,7 @@ public abstract class InteractiveTerrain : Modifiers, Interactable
         Gizmos.DrawWireSphere(transform.position, interactionDistance);
     }
 
-    public virtual Vector3 InteractablePoint(Entity entity)
+    public virtual Vector3 InteractablePoint(EntityLegacy entity)
     {
         
         Vector3 closestPoint = interactablepoints[0].transform.position;

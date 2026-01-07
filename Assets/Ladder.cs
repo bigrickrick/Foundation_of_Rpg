@@ -5,7 +5,7 @@ using UnityEngine;
 public class Ladder : InteractiveTerrain
 {
     
-    public override void interact(Entity entity)
+    public override void interact(EntityLegacy entity)
     {
         Debug.Log(entity+" Has reach ladder");
         Vector3 furthestPoint = CalculateFurthestPoint(entity);
@@ -15,7 +15,7 @@ public class Ladder : InteractiveTerrain
 
     }
 
-    private Vector3 CalculateFurthestPoint(Entity entity)
+    private Vector3 CalculateFurthestPoint(EntityLegacy entity)
     {
         Vector3 furthestPoint = interactablepoints[0].transform.position;
         float maxDistance = Vector3.Distance(entity.transform.position, furthestPoint);

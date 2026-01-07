@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationDummy : Entity
+public class AnimationDummy : EntityLegacy
 {
     public override void die()
     {

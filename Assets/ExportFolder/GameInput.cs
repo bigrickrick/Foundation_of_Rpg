@@ -64,11 +64,17 @@ public class GameInput : MonoBehaviour
     {
         OnPause?.Invoke(this, EventArgs.Empty);
     }
-    
+
     private void Shoot_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
+        StartCoroutine(InvokeShootNextFrame());
+    }
+
+    private IEnumerator InvokeShootNextFrame()
+    {
+        yield return null; 
         OnShoot?.Invoke(this, EventArgs.Empty);
-    } 
+    }
     public Vector2 GetMovementVectorNormalized()
     {
         Vector2 inputVector = playerInputAction.Player.Move.ReadValue<Vector2>();

@@ -45,7 +45,7 @@ public class Door : InteractiveTerrain
         }
     }
 
-    public override void interact(Entity entity)
+    public override void interact(EntityLegacy entity)
     {
         if (IsOpen)
         {

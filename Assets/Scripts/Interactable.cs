@@ -4,9 +4,9 @@ using UnityEngine;
 
 public interface Interactable
 {
-    void interact(Entity entity);
+    void interact(EntityLegacy entity);
 
     bool IsEntityCloseEnough(Vector3 entityPosition);
     
-    Vector3 InteractablePoint(Entity entity);
+    Vector3 InteractablePoint(EntityLegacy entity);
 }

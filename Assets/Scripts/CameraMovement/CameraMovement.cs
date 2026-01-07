@@ -18,6 +18,24 @@ public class CameraMovement : MonoBehaviour
 
     private void Start()
     {
+        if (gameInput == null)
+        {
+            gameInput = FindObjectOfType<GameInput>();
+            if (gameInput == null)
+            {
+                Debug.LogError("No GameInput found in the scene! Please add one.");
+                return;
+            }
+        }
+        if (party == null)
+        {
+            party = FindObjectOfType<Party>();
+            if (party == null)
+            {
+                Debug.LogError("No Party found in the scene! Please add one.");
+                return;
+            }
+        }
         gameInput.OnScroll += GameInput_OnScroll;
         gameInput.OnRotateCamera += GameInput_OnRotateCamera;
         gameInput.OnRotateCamerastoped += GameInput_OnRotateCamerastoped;

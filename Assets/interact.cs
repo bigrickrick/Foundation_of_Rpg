@@ -11,7 +11,8 @@ public class interact : MonoBehaviour
     [SerializeField] private GameObject ClickMarker;
     [SerializeField] private GameObject MouseLocation;
     [SerializeField] private float PathHeighOffset;
-    private LineRenderer Path;
+    
+    private LineRenderer LinePath;
     private NavMeshTriangulation Triangulation;
     private Vector3 targetPosition; 
     
@@ -19,10 +20,13 @@ public class interact : MonoBehaviour
     private void Start()
     {
         gameInput.OnShoot += GameInput_OnShoot;
-        Path = GetComponent<LineRenderer>();
-        Path.positionCount = 0;
-        Path.startWidth = 0.15f;
-        Path.endWidth = 0.15f;
+        LinePath = GetComponent<LineRenderer>();
+        LinePath.positionCount = 0;
+        LinePath.startWidth = 0.15f;
+        LinePath.endWidth = 0.15f;
+        LinePath.material = new Material(Shader.Find("Sprites/Default")); 
+        LinePath.startColor = Color.red;
+        LinePath.endColor = Color.red;
         ClickMarker.SetActive(false);
 
 
@@ -33,22 +37,37 @@ public class interact : MonoBehaviour
         Triangulation = NavMesh.CalculateTriangulation();
         MoveMouseAim();
 
-        if (party.CurrentEntity.HasReachHisdestination())
+        if (GameManager.Instance.movementMode == GameManager.MovementMode.Grid)
         {
-            // Clear path or take other actions
-            Path.positionCount = 0;
-            ClickMarker.SetActive(false);
+           
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                
+                DrawPath(hit);
+            }
+            else
+            {
+                
+                LinePath.positionCount = 0;
+                LinePath.enabled = false;
+            }
         }
+
+        
         else if (party.CurrentEntity.agent.hasPath)
         {
-            DrawPath();
+            //DrawPath(); 
         }
     }
+
 
     // Mouse aim
     private void MoveMouseAim()
     {
         Vector3 mousePos = Input.mousePosition;
+        Debug.Log("Mouse aim P1:" + mousePos);
         Ray ray = Camera.main.ScreenPointToRay(mousePos);
 
         
@@ -98,64 +117,127 @@ public class interact : MonoBehaviour
 
         if (agent.CalculatePath(targetPosition, path))
         {
-            
-            List<Vector3> sampledPath = new List<Vector3>();
-            for (int i = 0; i < path.corners.Length; i++)
-            {
-                NavMeshHit hit;
-                if (NavMesh.SamplePosition(path.corners[i], out hit, 1.0f, NavMesh.AllAreas))
-                {
-                    sampledPath.Add(hit.position + Vector3.up * PathHeighOffset);
-                }
-                else
-                {
-                    sampledPath.Add(path.corners[i]); 
-                }
-            }
 
-            Path.positionCount = sampledPath.Count;
-            for (int i = 0; i < sampledPath.Count; i++)
+            if (GameManager.Instance.movementMode == GameManager.MovementMode.Normal)
             {
-                Path.SetPosition(i, sampledPath[i]);
+                List<Vector3> sampledPath = new List<Vector3>();
+                for (int i = 0; i < path.corners.Length; i++)
+                {
+                    NavMeshHit hit;
+                    if (NavMesh.SamplePosition(path.corners[i], out hit, 1.0f, NavMesh.AllAreas))
+                    {
+                        sampledPath.Add(hit.position + Vector3.up * PathHeighOffset);
+                    }
+                    else
+                    {
+                        sampledPath.Add(path.corners[i]);
+                    }
+                }
+
+                LinePath.positionCount = sampledPath.Count;
+                for (int i = 0; i < sampledPath.Count; i++)
+                {
+                    LinePath.SetPosition(i, sampledPath[i]);
+                }
             }
+           
         }
     }
+    private void DrawPath(RaycastHit hit)
+    {
+        if (GameManager.Instance.movementMode != GameManager.MovementMode.Grid)
+            return;
+
+        Block startBlock = MapLegacy.instance.GetClosetBlockFromEntity(party.CurrentEntity.transform.position);
+        Block endBlock = MapLegacy.instance.GetBlockFromClick(hit);
+
+        if (startBlock == null || endBlock == null)
+        {
+            LinePath.positionCount = 0;
+            LinePath.enabled = false;
+            return;
+        }
+
+        List<Pathnode> path = PathfindingLegacy.instance.FindPath(startBlock, endBlock);
+
+        if (path == null || path.Count == 0)
+        {
+            LinePath.positionCount = 0;
+            LinePath.enabled = false;
+            return;
+        }
+
+        List<Vector3> pathPositions = new List<Vector3>();
+
+        for (int i = 0; i < path.Count; i++)
+        {
+            Pathnode node = path[i];
+            if (node == null) continue;
+
+            
+            Vector3 pos = node.transform.position;
+
+            
+            pos.y += node.transform.localScale.y / 2f;
+
+            pathPositions.Add(pos);
+
+            
+            if (i < path.Count - 1)
+            {
+                Pathnode nextNode = path[i + 1];
+                Vector3 nextPos = nextNode.transform.position;
+                nextPos.y += nextNode.transform.localScale.y / 2f;
+
+                
+                Vector3 midpoint = (pos + nextPos) / 2f;
+                midpoint.y = Mathf.Max(pos.y, nextPos.y);
+                pathPositions.Add(midpoint);
+            }
+        }
+
+        if (pathPositions.Count > 0)
+        {
+            LinePath.positionCount = pathPositions.Count;
+            LinePath.SetPositions(pathPositions.ToArray());
+            LinePath.enabled = true;
+        }
+        else
+        {
+            LinePath.positionCount = 0;
+            LinePath.enabled = false;
+        }
+    }
+
+  
+
+
+
 
 
     private void GameInput_OnShoot(object sender, System.EventArgs e)
     {
-        if (Input.GetMouseButtonDown(0))
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] hits = Physics.RaycastAll(ray);
+
+        foreach (RaycastHit hit in hits)
         {
-           
-            if (EventSystem.current.IsPointerOverGameObject())
-            {
-                return;
-            }
+            if (hit.collider == null) continue;
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit[] hits = Physics.RaycastAll(ray);
+            GameObject hitObject = hit.collider.gameObject;
+            SeeThroughTerrain seeThroughComponent = hitObject.GetComponent<SeeThroughTerrain>();
 
-            foreach (RaycastHit hit in hits)
-            {
-                if (hit.collider != null)
-                {
-                    GameObject hitObject = hit.collider.gameObject;
-                    SeeThroughTerrain seeThroughComponent = hitObject.GetComponent<SeeThroughTerrain>();
+            if (seeThroughComponent != null && seeThroughComponent.IsSeeThrough())
+                continue;
 
-                   
-                    if (seeThroughComponent != null && seeThroughComponent.IsSeeThrough())
-                    {
-                        // If see-through, continue to the next hit
-                        continue;
-                    }
-
-                    
-                    Interact(hitObject, hit);
-                    return; 
-                }
-            }
+            Interact(hitObject, hit);
+            return;
         }
     }
+
     private void Interact(GameObject hit, RaycastHit location)
     {
         var whatIsIt = Whatisit(hit);
@@ -171,6 +253,7 @@ public class interact : MonoBehaviour
                 if (!interactable.IsEntityCloseEnough(party.CurrentEntity.transform.position))
                 {
                     location.point = interactable.InteractablePoint(party.CurrentEntity);
+                    
                     party.CurrentEntity.Move(location, hit);
                     
                 }
@@ -201,12 +284,22 @@ public class interact : MonoBehaviour
             ClickMarker.SetActive(true);
             ClickMarker.transform.position = MouseLocation.transform.position;
             location.point = MouseLocation.transform.position;
+            DrawPath(location);
             party.CurrentEntity.Move(location);
             Debug.Log("Click location: " + location.point);
-            
             targetPosition = location.point;
-
+            ShowPathCoroutine(location);
         }
+    }
+    private IEnumerator ShowPathCoroutine(RaycastHit location)
+    {
+        
+        DrawPath(location);
+
+        
+        yield return new WaitForSeconds(5f);
+
+        
     }
 
 

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-public class ClickToMove : Entity
+public class ClickToMove : EntityLegacy
 {
     
     [SerializeField] private GameInput gameInput;

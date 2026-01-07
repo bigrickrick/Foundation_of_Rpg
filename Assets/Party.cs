@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class Party : MonoBehaviour
 {
-    public List<Entity> PartyMembers;
-    public Entity CurrentEntity;
+    public List<EntityLegacy> PartyMembers;
+    public EntityLegacy CurrentEntity;
     [SerializeField] private List<Node> NodeList;
 
     
@@ -34,7 +34,7 @@ public class Party : MonoBehaviour
         Vector3 centerPosition = CurrentEntity.transform.position;
         int y = 0;
         int x = 0;
-        foreach(Entity follower in PartyMembers)
+        foreach(EntityLegacy follower in PartyMembers)
         {
             if(follower != CurrentEntity)
             {
@@ -58,7 +58,7 @@ public class Party : MonoBehaviour
 
     public void Update()
     {
-        foreach (Entity entity in PartyMembers)
+        foreach (EntityLegacy entity in PartyMembers)
         {
             if (entity != CurrentEntity)
             {
@@ -79,7 +79,7 @@ public class Party : MonoBehaviour
 
     public void Gotoleader()
     {
-        foreach (Entity entity in PartyMembers)
+        foreach (EntityLegacy entity in PartyMembers)
         {
             if (entity != CurrentEntity)
             {
@@ -88,7 +88,7 @@ public class Party : MonoBehaviour
         }
     }
 
-    public void FollowLeader(Entity leader, Entity follower)
+    public void FollowLeader(EntityLegacy leader, EntityLegacy follower)
     {
         if (leader != null)
         {
@@ -128,7 +128,7 @@ public class Party : MonoBehaviour
             }
         }
     }
-    public void SwitchLeader(Entity newLeader)
+    public void SwitchLeader(EntityLegacy newLeader)
     {
         if (newLeader == null || !PartyMembers.Contains(newLeader))
         {
@@ -147,7 +147,7 @@ public class Party : MonoBehaviour
         UpdateNodePositions();
     }
 
-    public void AddFollower(Entity newFollower)
+    public void AddFollower(EntityLegacy newFollower)
     {
         if (newFollower == null)
         {

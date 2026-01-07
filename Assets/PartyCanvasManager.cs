@@ -26,7 +26,7 @@ public class PartyCanvasManager : MonoBehaviour
         int i = 0;
 
         // Assign each button to a party member
-        foreach (Entity member in party.PartyMembers)
+        foreach (EntityLegacy member in party.PartyMembers)
         {
             if (i >= buttonlist.Count)
             {
@@ -41,7 +41,7 @@ public class PartyCanvasManager : MonoBehaviour
             }
 
             
-            Entity capturedMember = member;
+            EntityLegacy capturedMember = member;
             button.onClick.AddListener(() => party.SwitchLeader(capturedMember));
 
             i++;

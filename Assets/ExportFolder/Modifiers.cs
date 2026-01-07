@@ -12,17 +12,18 @@ public abstract class Modifiers : MonoBehaviour
 
     public enum Type
     {
+        None,
         Interactiveterrain,
+        IsABlock,
         IsAObject,
         IsAEntity,
         IsAHostileEntity,
         PartyMember,
         MainCharacter
     }
-    [Header("What is it?")]
-   
 
-    public Type currentType = Type.Interactiveterrain;
+    public Type currentType = Type.None;
+
 
 
 
